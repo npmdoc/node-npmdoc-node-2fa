@@ -1,0 +1,219 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/jeremyscalpello/node-2fa#readme">node-2fa (v1.1.2)</a>
+</h1>
+<h4>Easy 2-Factor Integration For Node.JS</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.node-2fa">module node-2fa</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.node-2fa.generateSecret">
+            function <span class="apidocSignatureSpan">node-2fa.</span>generateSecret
+            <span class="apidocSignatureSpan">(options)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.node-2fa.generateToken">
+            function <span class="apidocSignatureSpan">node-2fa.</span>generateToken
+            <span class="apidocSignatureSpan">(secret)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.node-2fa.verifyToken">
+            function <span class="apidocSignatureSpan">node-2fa.</span>verifyToken
+            <span class="apidocSignatureSpan">(secret, token, window)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.node-2fa" id="apidoc.module.node-2fa">module node-2fa</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.node-2fa.generateSecret" id="apidoc.element.node-2fa.generateSecret">
+        function <span class="apidocSignatureSpan">node-2fa.</span>generateSecret
+        <span class="apidocSignatureSpan">(options)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function generateSecret(options) {
+    if (!options) options = {};
+    var bin = crypto.randomBytes(20);
+    var base32 = b32.encode(bin).toString('utf8').replace(/=/g, '');
+    var secret = base32.toLowerCase().replace(/(\w{4})/g, "$1 ").trim().split(' ').join('').toUpperCase();
+    var uri = 'otpauth://totp/' + encodeURIComponent(options.name || 'App') + encodeURIComponent(options.account ? ':' + options
+.account : '') + '%3Fsecret=' + secret;
+    return {
+        secret: secret,
+        uri: uri,
+        qr: 'https://chart.googleapis.com/chart?chs=166x166&amp;chld=L|0&amp;cht=qr&amp;chl=' + uri
+    };
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+npm install node-2fa --save
+```
+
+```javascript
+
+var twoFactor = require('node-2fa');
+
+var newSecret = twoFactor.<span class="apidocCodeKeywordSpan">generateSecret</span>({name: 'My Awesome App', account: &amp;#
+x27;johndoe'});
+/*
+{ secret: 'XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W',
+  uri: 'otpauth://totp/My Awesome App:johndoe%3Fsecret=XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W',
+  qr: 'https://chart.googleapis.com/chart?chs=166x166&amp;chld=L|0&amp;cht=qr&amp;chl=otpauth://totp/My Awesome App:johndoe
+%3Fsecret=XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W'
+}
+*/
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.node-2fa.generateToken" id="apidoc.element.node-2fa.generateToken">
+        function <span class="apidocSignatureSpan">node-2fa.</span>generateToken
+        <span class="apidocSignatureSpan">(secret)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function generateToken(secret) {
+    if (!secret || !secret.length) return null;
+    var unformatted = secret.replace(/\W+/g, '').toUpperCase();
+    var bin = b32.decode(unformatted);
+    return {
+        token: notp.totp.gen(bin)
+    };
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+/*
+{ secret: 'XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W',
+  uri: 'otpauth://totp/My Awesome App:johndoe%3Fsecret=XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W',
+  qr: 'https://chart.googleapis.com/chart?chs=166x166&amp;chld=L|0&amp;cht=qr&amp;chl=otpauth://totp/My Awesome App:johndoe
+%3Fsecret=XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W'
+}
+*/
+
+var newToken = twoFactor.<span class="apidocCodeKeywordSpan">generateToken</span>('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W');
+// { token: '630618' }
+
+twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '765075');
+// { delta: 0 }
+
+twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '00');
+// null
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.node-2fa.verifyToken" id="apidoc.element.node-2fa.verifyToken">
+        function <span class="apidocSignatureSpan">node-2fa.</span>verifyToken
+        <span class="apidocSignatureSpan">(secret, token, window)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function verifyToken(secret, token, window) {
+    if (!secret || !secret.length || !token || !token.length) return null;
+    if (!window) window = 4;
+    var unformatted = secret.replace(/\W+/g, '').toUpperCase();
+    var bin = b32.decode(unformatted);
+    token = token.replace(/\W+/g, '');
+    return notp.totp.verify(token, bin, {
+        window: window,
+        time: 30
+    });
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+  qr: 'https://chart.googleapis.com/chart?chs=166x166&amp;chld=L|0&amp;cht=qr&amp;chl=otpauth://totp/My Awesome App:johndoe
+%3Fsecret=XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W'
+}
+*/
+
+var newToken = twoFactor.generateToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W');
+// { token: '630618' }
+
+twoFactor.<span class="apidocCodeKeywordSpan">verifyToken</span>('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '765075'
+;);
+// { delta: 0 }
+
+twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '00');
+// null
+```
+
+API
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
